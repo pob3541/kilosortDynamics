@@ -51,13 +51,14 @@ end
 % 3. ISI [min median average max pISI_violation nUniqueISI/nISIs], 
 % 4. spike duration / percentage of recording clust is present
 % 5. average/median nSpikes/trial
-qualMet.nSpClus = sortrows([(0:length(nSpClus)-1)',nSpClus],2,'descend');
+qualMet.nSpClus = [(0:length(nSpClus)-1)',nSpClus];
 pISIviol = (sum(ISI<1.5)'./nSpClus)*100;
-tableMat= [min(ISI)',median(ISI,'omitnan')',max(ISI)',pISIviol];
-qualMet.ISI.min = min(ISI)';
-qualMet.ISI.med = median(ISI,'omitnan')';
-qualMet.ISI.max = max(ISI)';
-qualMet.ISI.pISIviol = pISIviol;
+varNames={'minISI','medianISI','maxISI','pISIviol'};
+arrISI=[min(ISI)',median(ISI,'omitnan')',max(ISI)',pISIviol];
+tblISI=array2table(arrISI,"VariableNames",varNames);
+
+qualMet.tblISI= tblISI;
+
 
 
 %% for plotting ISI

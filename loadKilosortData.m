@@ -1,50 +1,21 @@
 %% loadKilosortdata
 
 myHomeKsDir = '/home/pierre/Code/Data/NeuroPixel/2018-10-24/output';
-myWorkKsDir = '/media/pierreb/Biggie/NeuroPixel/2018-10-24/';
+myWorkKsDir = '/media/pierreb/Biggie/NeuroPixel/';
+cd(myWorkKsDir)
+sp = loadKSdir(myWorkKsDir); % from spikes repository
+
+
+
+
+%% calculate quality metrics - to determine which units waveforms to plot
 
 %workCodeDir 
 cd '~/Documents/Code/kilosortDynamics'
 
-cd(myWorkKsDir)
-sp = loadKSdir(myWorkKsDir); % from spikes repository
+[spTimes,clusIdx,spTemp,qualMet,ISItbl]=calcISI(sp);
 
-%% calculate quality metrics - to determine which units waveforms to plot
-
-[spTimes,clusIdx,spTemp,qualMet]=calcISI(sp);
-
-table(qualMet.nSpClus)
-% which channels are these clusters on 
-nClusters=qualMet.nClusts;
-for clus =1: nClusters
-%clus=1;
-exTemp=squeeze(sp.temps(clus,:,:));
-
-j=1;
-for i =1:size(exTemp,2)
-nTPs=size(exTemp,1);
-chLogic(i,1)=0;
-
-   % can use any here to find the zero vectors
-    if ~isempty(find(exTemp(:,i), 1))
-        nonZeroTemp(:,j)=exTemp(:,i);
-        chLogic(i,1)=1;
-        j=j+1;
-    end
-
-end
-channels =1:383;
-filtChs=channels(logical(chLogic))';
-
-
-
-% will plot the template from certain channels
-figure;
-hold on;
-for i =1:length(filtChs)
-plot(sp.temps(clus,:,filtChs(i)))
-end
-end
+plotClustTemp(sp,qualMet)
 
 %%
 % load in waveforms 
