@@ -45,6 +45,18 @@ imec = Neuropixel.ImecDataset('/data/raw_datasets/neuropixel_01.imec.ap.bin', 'c
 load
 
 
+%% dan's code -load raw data
+
+guessLabProbe = 'neuropixPhase3B2';
+load([guessLabProbe, '_kilosortChanMap.mat']);
+channelMapFile = 'neuropixPhase3B_kilosortChanMap.mat';
+
+
+
+
+neuroPixDir = '/home/pierre/Code/Data/NeuroPixel/2018-10-24/';
+fileOrFileStem=[neuroPixDir,'Olaf_20181024_02_g0_t0.imec.ap.bin'];
+imec = Neuropixel.ImecDataset('Olaf_20181024_02_g0_t0.imec.ap.bin', 'channelMap', channelMapFile);
 
 
 
