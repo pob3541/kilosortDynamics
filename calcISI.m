@@ -3,7 +3,7 @@ function [spTimes,clusIdx,spTemp,qualMet]=calcISI(sp)
 spTimes=sp.st;
 clusIdx = sp.clu; % same as sp.spikeTemplates I think
 spTemp = sp.temps; 
-qualMet.nClusts = length(unique(clusIdx));
+qualMet.nClusts = size(spTemp,1); % will not get clusters that have 0 spikes associated
 
 % sum number of instances of each cluster
 for i =0 : max(clusIdx)
@@ -19,6 +19,7 @@ tmpSpClus=spTimes(clusLogic(:,i));
 nanFill=nNans-length(tmpSpClus);
 spTimeClus(:,i)=[tmpSpClus;nan(nanFill,1)];
 end
+qualMet.spTimeClus=spTimeClus;
 
 
 %% ISI calculations
