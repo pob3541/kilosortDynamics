@@ -23,11 +23,10 @@ cd '/home/pierre/Code/kilosortDynamics'
 % workCodeDir 
 cd '~/Documents/Code/kilosortDynamics'
 
-[spTimes,clusIdx,spTemp,qualMet]=calcISI(sp);
+[spTimes,clusIdx,spTemp,sr,allChs,qualMet]=calcQuality(sp);
 
 
-sr=sp.sample_rate;
-
+%%
 % greater than 0
 qualMet.nSpClus(:,2)>0
 totTime=rez.ops.sampsToRead/(sr);
@@ -165,7 +164,7 @@ line([300 300], [0 7], 'LineStyle','--')
 % load in waveforms 
 % added floor to nSamp in getWaveForms
 % which cluster to get?
-clust=66;
+clust=1;
 
 gwfparams.dataDir = myKsDir;    % KiloSort/Phy output folder
 apD = dir(fullfile(myKsDir, '*ap*.bin')); % AP band file from spikeGLX specifically
@@ -174,7 +173,7 @@ gwfparams.dataType = 'int16';            % Data type of .dat file (this should b
 gwfparams.nCh = 385;                      % Number of channels that were streamed to disk in .dat file
 gwfparams.wfWin = [-40 41];              % Number of samples before and after spiketime to include in waveform
 gwfparams.nWf = 2000;                    % Number of waveforms per unit to pull out
-gwfparams.spikeTimes = ceil(sp.st(sp.clu==clust)*30000); % Vector of cluster spike times (in samples) same length as .spikeClusters
+gwfparams.spikeTimes = ceil(sp.st(sp.clu==clust)*sr); % Vector of cluster spike times (in samples) same length as .spikeClusters
 gwfparams.spikeClusters = sp.clu(sp.clu==clust);
 
 wf = getWaveForms(gwfparams);
@@ -189,12 +188,23 @@ colormap(colormap_BlueWhiteRed); caxis([-1 1]*max(abs(caxis()))/2); box off;
 waveForms=squeeze(wf.waveForms);
 
 figure;
-chs =28;
-nSpikes=81;
-for i= 1:nSpikes 
-hold on;
-plot(waveForms(:,chs,i))
+chs = allChs(~isnan(qualMet.filtChs(:,clust)));
+nSpikes=size(gwfparams.spikeTimes,1);
+figure;
+    figure;
+for sp= 113 %nSpikes 
+figure;
+plot(0:81,squeeze(waveForms(sp,chs([14 16]),:)));
+axis([0 90 -70 40])
 end
+
+% plot cluster template
+exTemp=squeeze(spTemp(clust+1,:,:));
+
+% will plot the template from non-zero channels
+figure;
+hold on;
+plot(exTemp(:,chs));
 
 %%
 

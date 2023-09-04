@@ -1,4 +1,4 @@
-function plotClustTemp(sp,qualMet, trialLogic,trialSecs)%,varargin)
+function [filtChs]=plotClustTemp(sp,qualMet, trialLogic,trialSecs)%,varargin)
 
 % which channels are these clusters on 
 % will want to limit plotting to good template clusters
