@@ -25,6 +25,99 @@ cd '~/Documents/Code/kilosortDynamics'
 
 [spTimes,clusIdx,spTemp,sr,allChs,qualMet]=calcQuality(sp);
 
+%%
+% load in waveforms 
+% added floor to nSamp in getWaveForms
+% which cluster to get?
+clust=285;
+
+gwfparams.dataDir = myKsDir;    % KiloSort/Phy output folder
+apD = dir(fullfile(myKsDir, '*ap*.bin')); % AP band file from spikeGLX specifically
+gwfparams.fileName = apD(1).name;         % .dat file containing the raw 
+gwfparams.dataType = 'int16';            % Data type of .dat file (this should be BP filtered)
+gwfparams.nCh = 385;                      % Number of channels that were streamed to disk in .dat file
+gwfparams.wfWin = [-40 41]; % Number of samples before and after spiketime to include in waveform
+
+% if num wfs greater than 10k then just pull 10k
+gwfparams.nWf = 10000; %qualMet.nSpClus(clust+1,2);                    % Number of waveforms per unit to pull out
+
+gwfparams.spikeTimes = ceil(sp.st(sp.clu==clust)*sr); % Vector of cluster spike times (in samples) same length as .spikeClusters
+gwfparams.spikeClusters = sp.clu(sp.clu==clust);
+
+wf = getWaveForms(gwfparams);
+
+chLogic = ~isnan(qualMet.filtChs(:,clust));
+chs=qualMet.filtChs(chLogic,clust);
+nSpikes=size(gwfparams.spikeTimes,1);
+
+waveForms=squeeze(wf.waveForms);
+chWfMean=squeeze(mean(waveForms(:,chs,:),1));
+sortrows([chs,max(abs(chWfMean),[],2)],2,'descend')
+peak2peak=sortrows([chs,max(abs(chWfMean),[],2)-min(abs(chWfMean),[],2)],2,'descend');
+
+%plot waveform by channel
+timePts=0:size(waveForms,3)-1;
+for chan= 1:size(chs,1)
+figure;
+plot(timePts,chWfMean(chan,:));
+title(['channel: ', num2str(chs(chan))])
+end
+
+
+%plot waveforms by spikes
+chChans=peak2peak(1:4,1);
+for sps= 1:gwfparams.nWf %nSpikes 
+figure;
+plot(timePts,squeeze(waveForms(sps,chChans,:)));
+end
+
+nSpikes=5;
+figure;
+for i=1:size(chChans,1)
+subplot(2,2,i); plot(squeeze(waveForms(1:nSpikes,chChans(i),:))');
+%subplot(2,2,i); plot(mean(squeeze(waveForms(1:nSpikes,chChans(i),:))));
+title(['channel: ', num2str(chChans(i))])
+end
+% see all individual spikes
+% see averages by order of magnitude
+
+% individual spikes
+figure;
+plot(squeeze(waveForms(1:10000,chChans(1),:))');
+plot(mean(bestCh))
+
+% average of 10,100, and 1000 spikes
+clear avgSpike
+n=100;
+rngs=1:n:10000+1;
+
+for i =1:length(rngs)-1
+avgSpike(:,i)=mean(bestCh(rngs(i):rngs(i+1)-1,:))';
+end
+plot(avgSpike);
+
+
+% all spikes
+figure;
+plot(mean(squeeze(waveForms(:,chChans(1),:))));
+
+% 
+
+
+% plot cluster template
+exTemp=squeeze(spTemp(clust+1,:,:));
+
+% will plot the template from non-zero channels
+figure;
+hold on;
+plot(exTemp(:,chs));
+
+% the cluster of spikes seems to move significantly over time
+figure; 
+imagesc(squeeze(wf.waveFormsMean))
+set(gca, 'YDir', 'normal'); xlabel('time (samples)'); ylabel('channel number'); 
+colormap(colormap_BlueWhiteRed); caxis([-1 1]*max(abs(caxis()))/2); box off;
+
 
 %%
 % greater than 0
@@ -34,6 +127,7 @@ totTime=rez.ops.sampsToRead/(sr);
 % spikes/s over the experiment
 expFR=qualMet.nSpClus(:,2)./totTime; 
 sum(expFR>.5)
+
 
 % spikes over the time that stimuli are presented
 for s = 1:size(TFeventStruct,2) 
@@ -160,51 +254,7 @@ line([300 300], [0 7], 'LineStyle','--')
 
 
 
-%%
-% load in waveforms 
-% added floor to nSamp in getWaveForms
-% which cluster to get?
-clust=1;
 
-gwfparams.dataDir = myKsDir;    % KiloSort/Phy output folder
-apD = dir(fullfile(myKsDir, '*ap*.bin')); % AP band file from spikeGLX specifically
-gwfparams.fileName = apD(1).name;         % .dat file containing the raw 
-gwfparams.dataType = 'int16';            % Data type of .dat file (this should be BP filtered)
-gwfparams.nCh = 385;                      % Number of channels that were streamed to disk in .dat file
-gwfparams.wfWin = [-40 41];              % Number of samples before and after spiketime to include in waveform
-gwfparams.nWf = 2000;                    % Number of waveforms per unit to pull out
-gwfparams.spikeTimes = ceil(sp.st(sp.clu==clust)*sr); % Vector of cluster spike times (in samples) same length as .spikeClusters
-gwfparams.spikeClusters = sp.clu(sp.clu==clust);
-
-wf = getWaveForms(gwfparams);
-
-% the cluster of spikes seems to move significantly over time
-figure; 
-imagesc(squeeze(wf.waveFormsMean))
-set(gca, 'YDir', 'normal'); xlabel('time (samples)'); ylabel('channel number'); 
-colormap(colormap_BlueWhiteRed); caxis([-1 1]*max(abs(caxis()))/2); box off;
-
-%plot individual waveforms
-waveForms=squeeze(wf.waveForms);
-
-figure;
-chs = allChs(~isnan(qualMet.filtChs(:,clust)));
-nSpikes=size(gwfparams.spikeTimes,1);
-figure;
-    figure;
-for sp= 100:120 %nSpikes 
-figure;
-plot(0:81,squeeze(waveForms(sp,chs,:)));
-axis([0 90 -70 40])
-end
-
-% plot cluster template
-exTemp=squeeze(spTemp(clust+1,:,:));
-
-% will plot the template from non-zero channels
-figure;
-hold on;
-plot(exTemp(:,chs));
 
 %%
 
