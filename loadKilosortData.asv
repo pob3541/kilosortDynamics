@@ -25,38 +25,63 @@ cd '~/Documents/Code/kilosortDynamics'
 
 [spTimes,clusIdx,spTemp,sr,allChs,qualMet]=calcQuality(sp);
 
-%%
-% load in waveforms 
-% added floor to nSamp in getWaveForms
-% which cluster to get?
-clust=285;
+%% inspect waveforms of units above a threshhold of spikes
+% plot units with most spikes
+sortSpClust=sortrows(qualMet.nSpClus,2,'descend');
 
-gwfparams.dataDir = myKsDir;    % KiloSort/Phy output folder
-apD = dir(fullfile(myKsDir, '*ap*.bin')); % AP band file from spikeGLX specifically
-gwfparams.fileName = apD(1).name;         % .dat file containing the raw 
-gwfparams.dataType = 'int16';            % Data type of .dat file (this should be BP filtered)
-gwfparams.nCh = 385;                      % Number of channels that were streamed to disk in .dat file
-gwfparams.wfWin = [-40 41]; % Number of samples before and after spiketime to include in waveform
+% no 0-spike templates
+sortSpClust=sortSpClust(sortSpClust(:,2) ~= 0);
 
-% if num wfs greater than 10k then just pull 10k
-gwfparams.nWf = 10000; %qualMet.nSpClus(clust+1,2);                    % Number of waveforms per unit to pull out
+% templates with more spikes than are being extracted
+nSpikes=1000;
+sortSpClust=sortSpClust(sortSpClust(:,2) > nSpikes);
 
-gwfparams.spikeTimes = ceil(sp.st(sp.clu==clust)*sr); % Vector of cluster spike times (in samples) same length as .spikeClusters
-gwfparams.spikeClusters = sp.clu(sp.clu==clust);
+% templates that have some minimum FR ...
 
-wf = getWaveForms(gwfparams);
+% improve algorithm to only get waveforms from best channels so you can
+% extract more and quicker
+for i =1:size(sortSpClust,1)
+clust=sortSpClust(i);
+[gwfparams,wF(i)]=inspectWaveforms(clust,myKsDir,sp,sr,nSpikes,qualMet);
+end
 
-chLogic = ~isnan(qualMet.filtChs(:,clust));
-chs=qualMet.filtChs(chLogic,clust);
-nSpikes=size(gwfparams.spikeTimes,1);
+% all extracted spikes with their mean from best peak2peak channel
+for i =1:size(sortSpClust,1)
+figure;
+hold on;
+plot(wF(i).bestCh');
+plot(mean(wF(i).bestCh),'k','LineWidth',3);
+title(['Clust: ', num2str(clust), ', Ch: ', num2str(wF(i).peak2peak(1)), ', nSps: ', num2str(nSpikes)])
+end
+wF(1)
+%end
 
-waveForms=squeeze(wf.waveForms);
-chWfMean=squeeze(mean(waveForms(:,chs,:),1));
-sortrows([chs,max(abs(chWfMean),[],2)],2,'descend')
-peak2peak=sortrows([chs,max(abs(chWfMean),[],2)-min(abs(chWfMean),[],2)],2,'descend');
+
+
+
+
+% average of 10,100, and 1000 spikes
+clear avgSpike
+n=10;
+rngs=1:n:nSpikes+1;
+
+for i =1:length(rngs)-1
+avgSpike(:,i)=mean(wF.bestCh(rngs(i):rngs(i+1)-1,:))';
+end
+plot(avgSpike);
+
+
+
+
+
+
+
+
+
+
 
 %plot waveform by channel
-timePts=0:size(waveForms,3)-1;
+timePts=0:size(wF.waveForms,3)-1;
 for chan= 1:size(chs,1)
 figure;
 plot(timePts,chWfMean(chan,:));
@@ -78,32 +103,13 @@ subplot(2,2,i); plot(squeeze(waveForms(1:nSpikes,chChans(i),:))');
 %subplot(2,2,i); plot(mean(squeeze(waveForms(1:nSpikes,chChans(i),:))));
 title(['channel: ', num2str(chChans(i))])
 end
-% see all individual spikes
-% see averages by order of magnitude
-
-% individual spikes
-figure;
-plot(squeeze(waveForms(1:10000,chChans(1),:))');
-plot(mean(bestCh))
-
-% average of 10,100, and 1000 spikes
-clear avgSpike
-n=100;
-rngs=1:n:10000+1;
-
-for i =1:length(rngs)-1
-avgSpike(:,i)=mean(bestCh(rngs(i):rngs(i+1)-1,:))';
-end
-plot(avgSpike);
 
 
-% all spikes
-figure;
-plot(mean(squeeze(waveForms(:,chChans(1),:))));
-
-% 
 
 
+
+
+%%
 % plot cluster template
 exTemp=squeeze(spTemp(clust+1,:,:));
 

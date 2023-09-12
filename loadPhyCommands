@@ -1,0 +1,11 @@
+
+conda activate phy2
+phy extract-waveforms params.py
+env QTWEBENGINE_CHROMIUM_FLAGS="--single-process" phy template-gui params.py 
+
+
+ ACG - auto-correlogram
+ 
+ Correlogram - the auto-correlogram of each cluster's spike trains
+ 
+ merging perhaps more important than splitting in the sense that for dynamical purposes clusters can just be labelled as MUA and that is totally fine. 
