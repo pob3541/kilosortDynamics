@@ -30,23 +30,23 @@ cd '~/Documents/Code/kilosortDynamics'
 sortSpClust=sortrows(qualMet.nSpClus,2,'descend');
 
 % no 0-spike templates
-sortSpClust=sortSpClust(sortSpClust(:,2) ~= 0);
+sortSpClust=sortSpClust(sortSpClust(:,2) ~= 0,:);
 
 % templates with more spikes than are being extracted
 nSpikes=1000;
-sortSpClust=sortSpClust(sortSpClust(:,2) > nSpikes);
+sortSpClust=sortSpClust(sortSpClust(:,2) > nSpikes,:);
 
 % templates that have some minimum FR ...
 
 % improve algorithm to only get waveforms from best channels so you can
 % extract more and quicker
-for i =1:size(sortSpClust,1)
+for i =1:2%size(sortSpClust,1)
 clust=sortSpClust(i);
 [gwfparams,wF(i)]=inspectWaveforms(clust,myKsDir,sp,sr,nSpikes,qualMet);
 end
 
 % all extracted spikes with their mean from best peak2peak channel
-for i =1:size(sortSpClust,1)
+for i =1:2%size(sortSpClust,1)
 figure;
 hold on;
 plot(wF(i).bestCh');
@@ -56,15 +56,50 @@ end
 
 
 % average of 10,100, and 1000 spikes
+%nSpToAvg=100;
+% avgSpike(clust,nSpToAvg,qualMet,wF)
+withoutLiers=wF.bestCh(~outlier_logic,:);
 clear avgSpike
-n=10;
-rngs=1:n:nSpikes+1;
+nSpikes=length(withoutLiers);%qualMet.nSpClus(clust+1,2);
+nSpToAvg=2;
+rngs=1:nSpToAvg:nSpikes+1;
 
 for i =1:length(rngs)-1
-avgSpike(:,i)=mean(wF.bestCh(rngs(i):rngs(i+1)-1,:))';
+avgSpike(:,i)=mean(withoutLiers(rngs(i):rngs(i+1)-1,:))';
 end
 plot(avgSpike);
+% recalculate residuals
+% get rid of high amplitude spike noise single-trial
+residuals=wF.bestCh-mean(wF.bestCh);
 
+clear avgResid
+nSpikes=qualMet.nSpClus(clust+1,2);
+nSpToAvg=5;
+rngs=1:nSpToAvg:nSpikes+1;
+
+for i =1:length(rngs)-1
+avgResid(:,i)=mean(residuals(rngs(i):rngs(i+1)-1,:))';
+end
+plot(avgResid);
+
+outlier_logic=isoutlier(mean(residuals,2));
+plot(wF.bestCh(outlier_logic,:));
+std(residuals,0,2)
+
+% plot cluster template
+exTemp=squeeze(spTemp(clust+1,:,:));
+
+% will plot the template from non-zero channels
+figure;
+hold on;
+%plot(exTemp(:,wF(1).peak2peak(1:10,2)));
+%figure;
+for i =1:20
+    subplot(5,4,i);plot(exTemp(:,qualMet.filtChs(i,clust+1)));
+end
+
+% plot cluster function
+plotClustTemp(sp,qualMet,trialLogic,trialSecs)
 
 
 %%
@@ -113,7 +148,6 @@ scatter(tmpSpTimeClus(tmpLogic),y)
 histogram(tmpSpTimeClus(tmpLogic))
 end
 
-plotClustTemp(sp,qualMet,trialLogic,trialSecs)
 
 
 
@@ -152,14 +186,6 @@ end
 
 
 %%
-% plot cluster template
-exTemp=squeeze(spTemp(clust+1,:,:));
-
-% will plot the template from non-zero channels
-figure;
-hold on;
-plot(exTemp(:,chs));
-
 % the cluster of spikes seems to move significantly over time
 figure; 
 imagesc(squeeze(wf.waveFormsMean))

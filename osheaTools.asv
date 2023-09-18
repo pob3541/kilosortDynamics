@@ -14,7 +14,7 @@ imec = Neuropixel.ImecDataset('/media/pierreb/Biggie/NeuroPixel/2018-10-24/Olaf_
 homeDir ='/home/pierre/Code/Data/Neuropixel/2018-10-24';
 
 channelMapFile = 'neuropixPhase3A_option4_kilosortChanMap.mat'; 
-imec = Neuropixel.ImecDataset('/home/pierre/Code/Data/Neuropixel/2018-10-24/', 'channelMap', channelMapFile);
+imec = Neuropixel.ImecDataset('/home/pierre/Code/Data/Neuropixel/2018-10-24/Olaf_20181024_03_g0_t0.imec.ap.bin', 'channelMap', channelMapFile);
 
 
 
