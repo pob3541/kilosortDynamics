@@ -8,7 +8,14 @@ sp = loadKSdir(myKsDir); % from spikes repository
 
 %work
 myKsDir = '/media/pierreb/Biggie/NeuroPixel/';
+
+% LASER/plexon data
+longDirName= '/media/pierreb/Biggie/2023-09-18_09-31-11/Record Node 101/experiment1/recording1/continuous/Acquisition_Board-100.Rhythm Data/kilosort3'; 
+myKsDir=longDirName;
 cd(myKsDir)
+rootZ = '/media/pierreb/Biggie/2023-09-18_09-31-11/Record Node 101/experiment1/recording1/continuous/Acquisition_Board-100.Rhythm Data'; % the raw data binary file is in this folder'
+
+cd(rootZ)
 sp = loadKSdir(myKsDir); % from spikes repository
 
 
@@ -40,9 +47,11 @@ sortSpClust=sortSpClust(sortSpClust(:,2) > nSpikes,:);
 
 % improve algorithm to only get waveforms from best channels so you can
 % extract more and quicker
-for i =1:2%size(sortSpClust,1)
+for i =1:size(sortSpClust,1)
 clust=sortSpClust(i);
-[gwfparams,wF(i)]=inspectWaveforms(clust,myKsDir,sp,sr,nSpikes,qualMet);
+%[gwfparams,wF(i)]=inspectWaveforms(clust,myKsDir,sp,sr,nSpikes,qualMet);
+[gwfparams,wF(i)]=inspectWaveforms(clust,myKsDir,sp,sr,qualMet);
+
 end
 
 % all extracted spikes with their mean from best peak2peak channel
@@ -97,6 +106,7 @@ hold on;
 for i =1:20
     subplot(5,4,i);plot(exTemp(:,qualMet.filtChs(i,clust+1)));
 end
+plot(exTemp)
 
 % plot cluster function
 plotClustTemp(sp,qualMet,trialLogic,trialSecs)

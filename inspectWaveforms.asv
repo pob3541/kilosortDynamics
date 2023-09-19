@@ -4,8 +4,8 @@ function [gwfparams,wF]=inspectWaveforms(clust,ksDir,sp,sr,qualMet)
 
 gwfparams.dataDir = ksDir;    % KiloSort/Phy output folder
 apD = dir(fullfile(ksDir, '*ap*.bin')); % AP band file from spikeGLX specifically
-    % if apD is empty then just get the binary file
-    % apD=dir('*.dat');
+% if apD is empty then just get the binary file
+apD=dir('*.dat');
 gwfparams.fileName = apD(1).name;         % .dat file containing the raw 
 gwfparams.dataType = 'int16';            % Data type of .dat file (this should be BP filtered)
 gwfparams.nCh = sp.n_channels_dat;%385;                      % Number of channels that were streamed to disk in .dat file
@@ -24,9 +24,7 @@ gwfparams.spikeClusters = sp.clu(sp.clu==clust);
 
 fileName = fullfile(gwfparams.dataDir,gwfparams.fileName);           
 filenamestruct = dir(fileName);
-    % if filenamestruct is empty
-    %fileName = fullfile(rootZ,gwfparams.fileName);           
-    %filenamestruct = dir(fileName);
+% if filenamestruct is empty
 
 dataTypeNBytes = numel(typecast(cast(0, gwfparams.dataType), 'uint8')); % determine number of bytes per sample
 nSamp = filenamestruct.bytes/(gwfparams.nCh*dataTypeNBytes);  % Number of samples per channel
