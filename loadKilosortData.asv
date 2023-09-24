@@ -72,9 +72,9 @@ wF.bestCh(1,:), zeros
 gwfparams.wfWin 
 wfWin=gwfparams.wfWin;
 
-% do artifact removal before this
-train=zeros(1,wf.spikeTimeKeeps(100)+wfWin(2));
-for i = 1: 100%length(spikeTimes)
+% do artifact r
+train=zeros(1,wf.spikeTimeKeeps(1000)+wfWin(2));
+for i = 1: 1000%length(spikeTimes)
     bfSp=wf.spikeTimeKeeps(i)+wfWin(1);
     afSp=wf.spikeTimeKeeps(i)+wfWin(2);
 
