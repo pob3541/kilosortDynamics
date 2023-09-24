@@ -48,7 +48,7 @@ sortSpClust=sortSpClust(sortSpClust(:,2) > nSpikes,:);
 % improve algorithm to only get waveforms from best channels so you can
 % extract more and quicker
 for i =1:size(sortSpClust,1)
-clust=sortSpClust(i);
+clust=0%sortSpClust(i);
 %[gwfparams,wF(i)]=inspectWaveforms(clust,myKsDir,sp,sr,nSpikes,qualMet);
 [gwfparams,wF(i)]=inspectWaveforms(clust,myKsDir,sp,sr,qualMet);
 
@@ -63,6 +63,8 @@ plot(mean(wF(i).bestCh),'k','LineWidth',3);
 title(['Clust: ', num2str(sortSpClust(i)), ', Ch: ', num2str(wF(i).peak2peak(1)), ', nSps: ', num2str(nSpikes)])
 end
 
+% best channel is a bit broken at the moment
+plot(squeeze(wF.waveForms(1,1:18,:)))
 
 % average of 10,100, and 1000 spikes
 %nSpToAvg=100;
