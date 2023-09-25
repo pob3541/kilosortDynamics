@@ -72,13 +72,16 @@ wF.bestCh(1,:), zeros
 gwfparams.wfWin 
 wfWin=gwfparams.wfWin;
 
-% do artifact r
-train=zeros(1,wf.spikeTimeKeeps(1000)+wfWin(2));
-for i = 1: 1000%length(spikeTimes)
+% do artifact removal before this
+nKeepSpikes=100;
+train=zeros(wf.spikeTimeKeeps(nKeepSpikes)+wfWin(2),numel(wF.chs));
+
+for i = 1: 100%length(spikeTimes)
     bfSp=wf.spikeTimeKeeps(i)+wfWin(1);
     afSp=wf.spikeTimeKeeps(i)+wfWin(2);
 
-    train(1,bfSp:afSp)=wF.bestCh(i,:);
+%     train(1,bfSp:afSp)=wF.bestCh(i,:);
+    train(bfSp:afSp,:)=squeeze(wF.waveForms(i,:,:));
 end
 plot(train)
 % when are the spike times for this cluster?
