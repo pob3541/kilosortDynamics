@@ -40,7 +40,7 @@ sortSpClust=sortrows(qualMet.nSpClus,2,'descend');
 sortSpClust=sortSpClust(sortSpClust(:,2) ~= 0,:);
 
 % templates with more spikes than are being extracted
-nSpikes=10000;
+nSpikes=1000;
 sortSpClust=sortSpClust(sortSpClust(:,2) > nSpikes);
 
 % templates that have some minimum FR ...
@@ -48,7 +48,7 @@ sortSpClust=sortSpClust(sortSpClust(:,2) > nSpikes);
 % improve algorithm to only get waveforms from best channels so you can
 % extract more and quicker
 for i =1:size(sortSpClust,1)
-clust=sortSpClust(i);
+clust=0%sortSpClust(i);
 %[gwfparams,wF(i)]=inspectWaveforms(clust,myKsDir,sp,sr,nSpikes,qualMet);
 % [gwfparams,wF(i)]=inspectWaveforms(clust,myKsDir,sp,sr,qualMet);
 
@@ -67,24 +67,22 @@ end
 
 % plot all ducks in a row
 plot(wF.bestCh(1,:))
-
+wf.spikeTimeKeeps
+wF.bestCh(1,:), zeros
+gwfparams.wfWin 
 wfWin=gwfparams.wfWin;
 
 % do artifact removal before this
 nKeepSpikes=100;
-train=zeros(1,wf.spikeTimeKeeps(nKeepSpikes)+wfWin(2));
+train=zeros(wf.spikeTimeKeeps(nKeepSpikes)+wfWin(2),numel(wF.chs));
 
-% train=zeros(wf.spikeTimeKeeps(nKeepSpikes)+wfWin(2),numel(wF.chs));
-
-for i = 1: nKeepSpikes%length(spikeTimes)
+for i = 1: 100%length(spikeTimes)
     bfSp=wf.spikeTimeKeeps(i)+wfWin(1);
     afSp=wf.spikeTimeKeeps(i)+wfWin(2);
 
-    train(1,bfSp:afSp)=wF.bestCh(i,:);
-%     train(bfSp:afSp,:)=squeeze(wF.waveForms(i,:,:))';
+%     train(1,bfSp:afSp)=wF.bestCh(i,:);
+    train(bfSp:afSp,:)=squeeze(wF.waveForms(i,:,:));
 end
-offset=(numel(wF.chs):-1:1)'*100;
-plot(train+offset')
 plot(train)
 % when are the spike times for this cluster?
 
