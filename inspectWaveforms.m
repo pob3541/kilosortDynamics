@@ -69,6 +69,9 @@ wF.chLogic = ~isnan(qualMet.filtChs(:,clust+1));
 wF.chs=qualMet.filtChs(wF.chLogic,clust+1);
 wF.waveForms=squeeze(wf.waveForms);
 wF.chWfMean=squeeze(mean(wF.waveForms(:,wF.chs,:),1));
+% consider getting rid of the absolute value for the min as likely changes
+% it to zero for some - like in the matlab function for it
+disp('consider changing to not the absolute value in this case')
 wF.peak2peak=sortrows([wF.chs,max(abs(wF.chWfMean),[],2)-min(abs(wF.chWfMean),[],2)],2,'descend');
 wF.bestCh=squeeze(wF.waveForms(:,wF.peak2peak(1,1),:));
 
