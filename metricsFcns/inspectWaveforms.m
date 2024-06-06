@@ -31,7 +31,7 @@ filenamestruct = dir(fileName);
 dataTypeNBytes = numel(typecast(cast(0, gwfparams.dataType), 'uint8')); % determine number of bytes per sample
 nSamp = filenamestruct.bytes/(gwfparams.nCh*dataTypeNBytes);  % Number of samples per channel
 wfNSamples = length(gwfparams.wfWin(1):gwfparams.wfWin(end));
-mmf = memmapfile(fileName, 'Format', {gwfparams.dataType, [gwfparams.nCh nSamp], 'x'});
+mmf = memmapfile(fileName, 'Format', {gwfparams.dataType, [gwfparams.nCh fix(nSamp)], 'x'});
 channels = rmmissing(qualMet.filtChs(:,clust+1));% PB addition
 chMap = channels;% readNPY(fullfile(gwfparams.dataDir, 'channel_map.npy'))+1;               % Order in which data was streamed to disk; must be 1-indexed for Matlab
 nChInMap = numel(chMap);
@@ -50,9 +50,10 @@ for curUnitInd=1:numUnits
     spikeTimesRP = curSpikeTimes(randperm(curUnitnSpikes));
     spikeTimeKeeps(curUnitInd,1:min([gwfparams.nWf curUnitnSpikes])) = sort(spikeTimesRP(1:min([gwfparams.nWf curUnitnSpikes])));
     for curSpikeTime = 1:min([gwfparams.nWf curUnitnSpikes])
-        %tmpWf = mmf.Data.x(1:gwfparams.nCh,spikeTimeKeeps(curUnitInd,curSpikeTime)+gwfparams.wfWin(1):spikeTimeKeeps(curUnitInd,curSpikeTime)+gwfparams.wfWin(end));
+%         tmpWf = mmf.Data.x(1:gwfparams.nCh,spikeTimeKeeps(curUnitInd,curSpikeTime)+gwfparams.wfWin(1):spikeTimeKeeps(curUnitInd,curSpikeTime)+gwfparams.wfWin(end));
+%         waveForms(curUnitInd,curSpikeTime,:,:) = tmpWf(chMap,:);
         tmpWf = mmf.Data.x(channels,spikeTimeKeeps(curUnitInd,curSpikeTime)+gwfparams.wfWin(1):spikeTimeKeeps(curUnitInd,curSpikeTime)+gwfparams.wfWin(end));
-        waveForms(curUnitInd,curSpikeTime,:,:) = tmpWf(chMap,:);
+        waveForms(curUnitInd,curSpikeTime,:,:) = tmpWf;
     end
     waveFormsMean(curUnitInd,:,:) = squeeze(nanmean(waveForms(curUnitInd,:,:,:),2));
     disp(['Completed ' int2str(curUnitInd) ' units of ' int2str(numUnits) '.']);
@@ -68,9 +69,14 @@ wf.waveFormsMean = waveFormsMean;
 wF.chLogic = ~isnan(qualMet.filtChs(:,clust+1));
 wF.chs=qualMet.filtChs(wF.chLogic,clust+1);
 wF.waveForms=squeeze(wf.waveForms);
-wF.chWfMean=squeeze(mean(wF.waveForms(:,wF.chs,:),1));
+% wF.chWfMean=squeeze(mean(wF.waveForms(:,wF.chs,:),1));
+wF.chWfMean=squeeze(mean(wF.waveForms,1));
 wF.peak2peak=sortrows([wF.chs,max(abs(wF.chWfMean),[],2)-min(abs(wF.chWfMean),[],2)],2,'descend');
-wF.bestCh=squeeze(wF.waveForms(:,wF.peak2peak(1,1),:));
+% wF.bestCh=squeeze(wF.waveForms(:,wF.peak2peak(1,1),:));
+bestCh=wF.peak2peak(1,1);
+wF.bestCh=squeeze(wF.waveForms(:,find(bestCh==chMap),:));
+
+
 
 
 end

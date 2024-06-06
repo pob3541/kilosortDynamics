@@ -11,10 +11,17 @@ allChs=1:nChs;
 
 
 % sum number of instances of each cluster
+% can I do this not for looped or what is clusIdx used for?
+% m1+ preallocate
+clusLogic=false(size(spTimes,1),qualMet.nClusts);
 for i =0 : max(clusIdx)
-clusLogic(:,i+1)=clusIdx==i;
+clusLogic(:,i+1)=clusIdx==i; % going to be an inefficient way of storage with many templates
 end
 nSpClus=sum(clusLogic)';
+
+% shouldn't even be storing it
+% m2 
+temp=ones(size(spTimes,1),qualMet.nClusts);
 
 
 % spike times organized by cluster

@@ -1,23 +1,11 @@
 %% loadKilosortdata
 
-% home
-myKsDir = '/home/pierre/Code/Data/Neuropixel/VINNIE_COLGRID_DLPFC_NPIX45_08112023_g0/VINNIE_COLGRID_DLPFC_NPIX45_08112023_g0_imec0';
-cd(myKsDir)
-sp = loadKSdir(myKsDir); % from spikes repository
-
-
 %work
-myKsDir = '/media/pierreb/Biggie/NeuroPixel/';
-
-% LASER/plexon data
-longDirName= '/media/pierreb/Biggie/2023-09-18_09-31-11/Record Node 101/experiment1/recording1/continuous/Acquisition_Board-100.Rhythm Data/kilosort3'; 
-myKsDir=longDirName;
-cd(myKsDir)
-rootZ = '/media/pierreb/Biggie/2023-09-18_09-31-11/Record Node 101/experiment1/recording1/continuous/Acquisition_Board-100.Rhythm Data'; % the raw data binary file is in this folder'
-
-cd(rootZ)
-sp = loadKSdir(myKsDir); % from spikes repository
-
+colDistDir='/media/pierreb/Biggie/colDist/Neuropixel';
+day='/2018-10-31';
+ksDir=[colDistDir,day];
+cd(ksDir)
+sp = loadKSdir(ksDir); % from spikes repository
 
 
 
@@ -28,7 +16,7 @@ cd '/home/pierre/Code/kilosortDynamics'
 
 
 % workCodeDir 
-cd '~/Documents/Code/kilosortDynamics'
+cd '~/Code/kilosortDynamics'
 
 [spTimes,clusIdx,spTemp,sr,allChs,qualMet]=calcQuality(sp);
 
@@ -36,10 +24,10 @@ cd '~/Documents/Code/kilosortDynamics'
 % plot units with most spikes
 sortSpClust=sortrows(qualMet.nSpClus,2,'descend');
 
-% no 0-spike templates
+% remove 0-spike templates
 sortSpClust=sortSpClust(sortSpClust(:,2) ~= 0,:);
 
-% templates with more spikes than are being extracted
+% extract templates with more than nSpikes 
 nSpikes=1000;
 sortSpClust=sortSpClust(sortSpClust(:,2) > nSpikes,:);
 
@@ -48,19 +36,18 @@ sortSpClust=sortSpClust(sortSpClust(:,2) > nSpikes,:);
 % improve algorithm to only get waveforms from best channels so you can
 % extract more and quicker
 for i =1:size(sortSpClust,1)
-clust=sortSpClust(i);
-%[gwfparams,wF(i)]=inspectWaveforms(clust,myKsDir,sp,sr,nSpikes,qualMet);
-[gwfparams,wF(i)]=inspectWaveforms(clust,myKsDir,sp,sr,qualMet);
-
+    clust=sortSpClust(i);
+    %[gwfparams,wF(i)]=inspectWaveforms(clust,myKsDir,sp,sr,nSpikes,qualMet);
+    [gwfparams,wF(i)]=inspectWaveforms(clust,myKsDir,sp,sr,qualMet);
 end
 
 % all extracted spikes with their mean from best peak2peak channel
-for i =1:2%size(sortSpClust,1)
-figure;
-hold on;
-plot(wF(i).bestCh');
-plot(mean(wF(i).bestCh),'k','LineWidth',3);
-title(['Clust: ', num2str(sortSpClust(i)), ', Ch: ', num2str(wF(i).peak2peak(1)), ', nSps: ', num2str(nSpikes)])
+for i =1:size(sortSpClust,1)
+    figure;
+    hold on;
+    plot(wF(i).bestCh');
+    plot(mean(wF(i).bestCh),'k','LineWidth',3);
+    title(['Clust: ', num2str(sortSpClust(i)), ', Ch: ', num2str(wF(i).peak2peak(1)), ', nSps: ', num2str(nSpikes)])
 end
 
 
