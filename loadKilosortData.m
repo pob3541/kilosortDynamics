@@ -1,12 +1,21 @@
 %% loadKilosortdata
 
-%work
-colDistDir='/media/pierreb/Biggie/colDist/Neuropixel';
+%work - colDistData
+colDistDir='/media/pierreb/Brain/colDist/Neuropixel';
 day='/2018-10-31';
 ksDir=[colDistDir,day];
 cd(ksDir)
 sp = loadKSdir(ksDir); % from spikes repository
 
+% opto data
+optoDir='/home/pierreb/Code/Data/Recordings/Monkey';
+day='/4_Bumi_spikeGLX';
+g0='/2_5-28-2024_Bumi_ACC_vertical_bank1_2_g0';
+rec='/5-28-2024_Bumi_ACC_vertical_bank1_2_g0_imec0';
+ksDir=[optoDir,day,g0,rec];
+cd(ksDir)
+
+sp = loadKSdir(ksDir); % from spikes repository
 
 
 %% calculate quality metrics - to determine which units waveforms to plot
@@ -27,50 +36,24 @@ sortSpClust=sortrows(qualMet.nSpClus,2,'descend');
 % remove 0-spike templates
 sortSpClust=sortSpClust(sortSpClust(:,2) ~= 0,:);
 
-<<<<<<< HEAD
 % extract templates with more than nSpikes 
 nSpikes=1000;
 sortSpClust=sortSpClust(sortSpClust(:,2) > nSpikes,:);
-=======
-% templates with more spikes than are being extracted
-nSpikes=10000;
-sortSpClust=sortSpClust(sortSpClust(:,2) > nSpikes);
->>>>>>> c4dd940ae22f5fc1d107f67c8eb77ea6763842a5
-
-% templates that have some minimum FR ...
 
 % improve algorithm to only get waveforms from best channels so you can
 % extract more and quicker
 for i =1:size(sortSpClust,1)
-<<<<<<< HEAD
     clust=sortSpClust(i);
-    %[gwfparams,wF(i)]=inspectWaveforms(clust,myKsDir,sp,sr,nSpikes,qualMet);
-    [gwfparams,wF(i)]=inspectWaveforms(clust,myKsDir,sp,sr,qualMet);
-=======
-clust=sortSpClust(i);
-%[gwfparams,wF(i)]=inspectWaveforms(clust,myKsDir,sp,sr,nSpikes,qualMet);
-% [gwfparams,wF(i)]=inspectWaveforms(clust,myKsDir,sp,sr,qualMet);
-
-% clust=sortSpClust(i);
-[gwfparams,wF(i)]=inspectWaveforms(clust,myKsDir,sp,sr,nSpikes,qualMet);
->>>>>>> c4dd940ae22f5fc1d107f67c8eb77ea6763842a5
+    [gwfparams,wF(i)]=inspectWaveforms(clust,ksDir,sp,sr,qualMet);
 end
 
 % all extracted spikes with their mean from best peak2peak channel
 for i =1:size(sortSpClust,1)
-<<<<<<< HEAD
     figure;
     hold on;
     plot(wF(i).bestCh');
     plot(mean(wF(i).bestCh),'k','LineWidth',3);
     title(['Clust: ', num2str(sortSpClust(i)), ', Ch: ', num2str(wF(i).peak2peak(1)), ', nSps: ', num2str(nSpikes)])
-=======
-figure;
-hold on;
-plot(wF(i).bestCh');
-plot(mean(wF(i).bestCh),'k','LineWidth',3);
-title(['Clust: ', num2str(sortSpClust(i)), ', Ch: ', num2str(wF(i).peak2peak(1)), ', nSps: ', num2str(nSpikes)])
->>>>>>> c4dd940ae22f5fc1d107f67c8eb77ea6763842a5
 end
 
 % plot all ducks in a row
