@@ -47,7 +47,7 @@ end
 
 % get the template for each cluster
 % same cluster can be associated with different templates?
-qualMet.clusTemp=double(unique([sp.clu,sp.spikeTemplates],"sorted",'rows'));
+qualMet.clusTemp=unique([sp.clu,sp.spikeTemplates],"sorted",'rows')
 
 %% ISI calculations
 % the rule of thumb is that if of the ISIs less than 1.5% violate the ISI

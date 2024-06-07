@@ -29,7 +29,7 @@ mmf = memmapfile(fileName, 'Format', {gwfparams.dataType, [gwfparams.nCh fix(nSa
 
 % basically I only want to load the channels that have the template in the
 % first place
-clust2template=qualMet.clusTemp(qualMet.clusTemp(:,1)==clust+1,2);% new addition
+clust2template=qualMet.clusTemp(qualMet.clusTemp(:,1)==clust+1)% new addition
 channels = rmmissing(qualMet.filtChs(:,clust2template));% PB addition
 
 %channels = rmmissing(qualMet.filtChs(:,clust+1));% PB addition
@@ -70,10 +70,8 @@ wf.spikeTimeKeeps = spikeTimeKeeps;
 wf.waveForms = waveForms;
 wf.waveFormsMean = waveFormsMean;
 
-wF.chLogic = ~isnan(qualMet.filtChs(:,clust2template));
-wF.chs=qualMet.filtChs(wF.chLogic,clust2template);
-% wF.chLogic = ~isnan(qualMet.filtChs(:,clust+1));
-% wF.chs=qualMet.filtChs(wF.chLogic,clust+1);
+wF.chLogic = ~isnan(qualMet.filtChs(:,clust+1));
+wF.chs=qualMet.filtChs(wF.chLogic,clust+1);
 wF.waveForms=squeeze(wf.waveForms);
 % wF.chWfMean=squeeze(mean(wF.waveForms(:,wF.chs,:),1));
 wF.chWfMean=squeeze(mean(wF.waveForms,1));

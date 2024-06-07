@@ -37,7 +37,7 @@ sortSpClust=sortrows(qualMet.nSpClus,2,'descend');
 sortSpClust=sortSpClust(sortSpClust(:,2) ~= 0,:);
 
 % extract templates with more than nSpikes 
-nSpikes=1000;
+nSpikes=1;
 sortSpClust=sortSpClust(sortSpClust(:,2) > nSpikes,:);
 
 % improve algorithm to only get waveforms from best channels so you can
