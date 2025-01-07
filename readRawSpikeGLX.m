@@ -4,7 +4,13 @@
 % load chunks of data at a time using fopen or mmamp; make sure to
 % preallocate ahead of time to make loading faster
 
-dPath='/home/pierreb/Code/Data/Recordings/Monkey/4_Bumi_spikeGLX/0_5-28-2024_Bumi_ACC_vertical_g0/5-28-2024_Bumi_ACC_vertical_g0_imec0';
+% dPath='/home/pierreb/Code/Data/Recordings/Monkey/4_Bumi_spikeGLX/0_5-28-2024_Bumi_ACC_vertical_g0/5-28-2024_Bumi_ACC_vertical_g0_imec0';
+
+% dPath='/media/pierreb/Brain/TIBERIUS_ColDist_DLPFC_PMD_g0/TIBERIUS_ColDist_DLPFC_PMD_g0_imec1';
+
+dPath='/media/pierreb/Brain/TIBERIUS_COLGRID_DLPFC_PMD_g0/TIBERIUS_COLGRID_DLPFC_PMD_g0_imec0';
+
+
 
 cd(dPath)
 
@@ -20,11 +26,13 @@ meta = SGLX_readMeta.ReadMeta(binName, path);
 % Get first one second of data
 % nSamp = floor(1.0 * SGLX_readMeta.SampRate(meta));
 sr=str2double(meta.imSampRate);
-nSecs=30.0;
+sr=str2double(meta.niSampRate);
+
+nSecs=300.0;
 nSamp = floor(nSecs * sr);
 
 dataArray = SGLX_readMeta.ReadBin(0, nSamp, meta, binName, path);
-dataType = 'A';         %set to 'A' for analog, 'D' for digital data
+dataType = 'D';         %set to 'A' for analog, 'D' for digital data
 
 % For an analog channel: gain correct saved channel ch (1-based for MATLAB).
 ch = 1;
@@ -36,7 +44,9 @@ dw = 1;
 % Read these lines in dw (0-based).
 % For 3B2 imec data: the sync pulse is stored in line 6.
 % May be 1 or more line indices.
-dLineList = [0,1,6];
+% dLineList = [0,1,6];
+dLineList = 0:15;
+
 
 if dataType == 'A'
     if strcmp(meta.typeThis, 'imec')
